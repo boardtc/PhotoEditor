@@ -26,6 +26,19 @@
         app:layout_constraintTop_toTopOf="parent"
         app:photo_src="@drawable/blank_image" />
 
+    <View
+        android:id="@+id/viewTextPlacementOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/photoEditorView"
+        app:layout_constraintEnd_toEndOf="@+id/photoEditorView"
+        app:layout_constraintStart_toStartOf="@+id/photoEditorView"
+        app:layout_constraintTop_toTopOf="@+id/photoEditorView" />
+
     <ImageView
         android:id="@+id/imgUndo"
         android:layout_width="@dimen/top_tool_icon_width"

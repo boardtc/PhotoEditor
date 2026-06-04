@@ -19,12 +19,19 @@ internal class GraphicManager(
     val redoStackCount
         get() = mViewState.redoViewsCount
 
-    fun addView(graphic: Graphic) {
+    fun addView(graphic: Graphic, position: Position? = null) {
         val view = graphic.rootView
         val params = RelativeLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE)
+        if (position == null) {
+            params.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE)
+        } else {
+            params.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE)
+            params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE)
+            params.leftMargin = position.x
+            params.topMargin = position.y
+        }
         mPhotoEditorView.addView(view, params)
         mViewState.addAddedView(view)
 

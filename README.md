@@ -159,6 +159,20 @@ It will take default fonts provided in the builder. If we want different fonts f
 
 `mPhotoEditor.addText(mTypeface,inputText, colorCode);`
 
+If you want the text to start at a specific location instead of the default centered position, use the overload with a `Position`:
+
+`mPhotoEditor.addText(inputText, colorCode, Position(80, 160));`
+
+After insertion, text can still be dragged, rotated, and scaled on the canvas.
+
+In the sample app, the end-user flow is now:
+
+1. Tap `Text`.
+2. Tap the image where the label should appear.
+3. Enter the text in the dialog.
+
+Repeat the same flow to add multiple text labels in different positions on the image.
+
 In order to edit the text we need the view, which we will receive in our PhotoEditor callback. This callback will trigger when we **Long Press** the added text
 
  ```java
