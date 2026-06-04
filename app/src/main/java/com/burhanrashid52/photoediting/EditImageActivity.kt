@@ -41,6 +41,7 @@ import ja.burhanrashid52.photoeditor.OnPhotoEditorListener
 import ja.burhanrashid52.photoeditor.PhotoEditor
 import ja.burhanrashid52.photoeditor.PhotoEditorView
 import ja.burhanrashid52.photoeditor.PhotoFilter
+import ja.burhanrashid52.photoeditor.Position
 import ja.burhanrashid52.photoeditor.SaveFileResult
 import ja.burhanrashid52.photoeditor.SaveSettings
 import ja.burhanrashid52.photoeditor.TextStyleBuilder
@@ -68,11 +69,13 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     private lateinit var mRvFilters: RecyclerView
     private lateinit var mImgUndo: View
     private lateinit var mImgRedo: View
+    private lateinit var mTextPlacementOverlay: View
     private val mEditingToolsAdapter = EditingToolsAdapter(this)
     private val mFilterViewAdapter = FilterViewAdapter(this)
     private lateinit var mRootView: ConstraintLayout
     private val mConstraintSet = ConstraintSet()
     private var mIsFilterVisible = false
+    private var mIsTextPlacementPending = false
 
     @VisibleForTesting
     var mSaveImageUri: Uri? = null
@@ -157,6 +160,16 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
     private fun initViews() {
         mPhotoEditorView = findViewById(R.id.photoEditorView)
+        mTextPlacementOverlay = findViewById(R.id.viewTextPlacementOverlay)
+        mTextPlacementOverlay.setOnTouchListener { _, event ->
+            if (mIsTextPlacementPending && event.action == MotionEvent.ACTION_UP) {
+                clearPendingTextPlacement()
+                showTextEditorDialog(Position(event.x.toInt(), event.y.toInt()))
+                true
+            } else {
+                false
+            }
+        }
         mTxtCurrentTool = findViewById(R.id.txtCurrentTool)
         mRvTools = findViewById(R.id.rvConstraintTools)
         mRvFilters = findViewById(R.id.rvFilterView)
@@ -187,6 +200,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onEditTextChangeListener(rootView: View, text: String, colorCode: Int) {
+        clearPendingTextPlacement()
         val textEditorDialogFragment =
             TextEditorDialogFragment.show(this, text.toString(), colorCode)
         textEditorDialogFragment.setOnTextEditorListener(object :
@@ -383,11 +397,13 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onEmojiClick(emojiUnicode: String) {
+        clearPendingTextPlacement()
         mPhotoEditor.addEmoji(emojiUnicode)
         mTxtCurrentTool.setText(R.string.label_emoji)
     }
 
     override fun onStickerClick(bitmap: Bitmap) {
+        clearPendingTextPlacement()
         mPhotoEditor.addImage(bitmap)
         mTxtCurrentTool.setText(R.string.label_sticker)
     }
@@ -414,6 +430,9 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onToolSelected(toolType: ToolType) {
+        if (toolType != ToolType.TEXT) {
+            clearPendingTextPlacement()
+        }
         when (toolType) {
             ToolType.SHAPE -> {
                 mPhotoEditor.setBrushDrawingMode(true)
@@ -424,16 +443,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             }
 
             ToolType.TEXT -> {
-                val textEditorDialogFragment = TextEditorDialogFragment.show(this)
-                textEditorDialogFragment.setOnTextEditorListener(object :
-                    TextEditorDialogFragment.TextEditorListener {
-                    override fun onDone(inputText: String, colorCode: Int) {
-                        val styleBuilder = TextStyleBuilder()
-                        styleBuilder.withTextColor(colorCode)
-                        mPhotoEditor.addText(inputText, styleBuilder)
-                        mTxtCurrentTool.setText(R.string.label_text)
-                    }
-                })
+                mIsTextPlacementPending = true
+                mTextPlacementOverlay.visibility = View.VISIBLE
+                mTxtCurrentTool.setText(R.string.label_text)
+                showSnackbar(getString(R.string.msg_tap_image_for_text))
             }
 
             ToolType.ERASER -> {
@@ -491,7 +504,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
     }
 
     override fun onBackPressed() {
-        if (mIsFilterVisible) {
+        if (mIsTextPlacementPending) {
+            clearPendingTextPlacement()
+            mTxtCurrentTool.setText(R.string.app_name)
+        } else if (mIsFilterVisible) {
             showFilter(false)
             mTxtCurrentTool.setText(R.string.app_name)
         } else if (!mPhotoEditor.isCacheEmpty) {
@@ -499,6 +515,24 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         } else {
             super.onBackPressed()
         }
+    }
+
+    private fun showTextEditorDialog(position: Position) {
+        val textEditorDialogFragment = TextEditorDialogFragment.show(this)
+        textEditorDialogFragment.setOnTextEditorListener(object :
+            TextEditorDialogFragment.TextEditorListener {
+            override fun onDone(inputText: String, colorCode: Int) {
+                val styleBuilder = TextStyleBuilder()
+                styleBuilder.withTextColor(colorCode)
+                mPhotoEditor.addText(inputText, styleBuilder, position)
+                mTxtCurrentTool.setText(R.string.label_text)
+            }
+        })
+    }
+
+    private fun clearPendingTextPlacement() {
+        mIsTextPlacementPending = false
+        mTextPlacementOverlay.visibility = View.GONE
     }
 
     companion object {

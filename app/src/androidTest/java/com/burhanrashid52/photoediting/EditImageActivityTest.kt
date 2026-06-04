@@ -256,6 +256,7 @@ class EditImageActivityTest {
 
         // Add a text to the image.
         Espresso.onView(ViewMatchers.withText(R.string.label_text)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.photoEditorView)).perform(ViewActions.click())
         Espresso.onView(ViewMatchers.withId(R.id.add_text_edit_text)).perform(ViewActions.click())
         Espresso.onView(ViewMatchers.withId(R.id.add_text_edit_text))
             .perform(ViewActions.typeText("Test Text"))
@@ -304,6 +305,7 @@ class EditImageActivityTest {
         // Open the emoji menu (delay to give time to load lower menu)
         Thread.sleep(2000)
         Espresso.onView(ViewMatchers.withText(R.string.label_text)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.photoEditorView)).perform(ViewActions.click())
         Espresso.onView(ViewMatchers.withId(R.id.add_text_edit_text)).perform(ViewActions.click())
 
         // Type the text (delay to allow keyboard to load)

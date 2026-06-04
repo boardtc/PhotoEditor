@@ -59,16 +59,46 @@ internal class PhotoEditorImpl @SuppressLint("ClickableViewAccessibility") const
         addText(null, text, colorCodeTextView)
     }
 
+    override fun addText(text: String, colorCodeTextView: Int, position: Position) {
+        addText(null, text, colorCodeTextView, position)
+    }
+
     override fun addText(textTypeface: Typeface?, text: String, colorCodeTextView: Int) {
         val styleBuilder = TextStyleBuilder()
         styleBuilder.withTextColor(colorCodeTextView)
         if (textTypeface != null) {
             styleBuilder.withTextFont(textTypeface)
         }
-        addText(text, styleBuilder)
+        addTextInternal(text, styleBuilder)
+    }
+
+    override fun addText(
+        textTypeface: Typeface?,
+        text: String,
+        colorCodeTextView: Int,
+        position: Position
+    ) {
+        val styleBuilder = TextStyleBuilder()
+        styleBuilder.withTextColor(colorCodeTextView)
+        if (textTypeface != null) {
+            styleBuilder.withTextFont(textTypeface)
+        }
+        addTextInternal(text, styleBuilder, position)
     }
 
     override fun addText(text: String, styleBuilder: TextStyleBuilder?) {
+        addTextInternal(text, styleBuilder)
+    }
+
+    override fun addText(text: String, styleBuilder: TextStyleBuilder?, position: Position) {
+        addTextInternal(text, styleBuilder, position)
+    }
+
+    private fun addTextInternal(
+        text: String,
+        styleBuilder: TextStyleBuilder?,
+        position: Position? = null
+    ) {
         drawingView.enableDrawing(false)
         val multiTouchListener = getMultiTouchListener(isTextPinchScalable)
         val textGraphic = Text(
@@ -79,7 +109,7 @@ internal class PhotoEditorImpl @SuppressLint("ClickableViewAccessibility") const
             mGraphicManager
         )
         textGraphic.buildView(text, styleBuilder)
-        addToEditor(textGraphic)
+        addToEditor(textGraphic, position)
     }
 
     override fun editText(view: View, inputText: String, colorCode: Int) {
@@ -125,9 +155,9 @@ internal class PhotoEditorImpl @SuppressLint("ClickableViewAccessibility") const
         addToEditor(emoji)
     }
 
-    private fun addToEditor(graphic: Graphic) {
+    private fun addToEditor(graphic: Graphic, position: Position? = null) {
         clearHelperBox()
-        mGraphicManager.addView(graphic)
+        mGraphicManager.addView(graphic, position)
         // Change the in-focus view
         viewState.currentSelectedView = graphic.rootView
     }

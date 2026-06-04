@@ -37,6 +37,19 @@ interface PhotoEditor {
     fun addText(text: String, colorCodeTextView: Int)
 
     /**
+     * This adds the text on the [PhotoEditorView] at the provided initial [position].
+     * by default [TextView.setText] will be 18sp
+     *
+     * @param text              text to display
+     * @param colorCodeTextView text color to be displayed
+     * @param position          initial position in pixels from the top-left of the editor
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    fun addText(text: String, colorCodeTextView: Int, position: Position) {
+        addText(text, colorCodeTextView)
+    }
+
+    /**
      * This add the text on the [PhotoEditorView] with provided parameters
      * by default [TextView.setText] will be 18sp
      *
@@ -48,6 +61,20 @@ interface PhotoEditor {
     fun addText(textTypeface: Typeface?, text: String, colorCodeTextView: Int)
 
     /**
+     * This adds the text on the [PhotoEditorView] at the provided initial [position].
+     * by default [TextView.setText] will be 18sp
+     *
+     * @param textTypeface      typeface for custom font in the text
+     * @param text              text to display
+     * @param colorCodeTextView text color to be displayed
+     * @param position          initial position in pixels from the top-left of the editor
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    fun addText(textTypeface: Typeface?, text: String, colorCodeTextView: Int, position: Position) {
+        addText(textTypeface, text, colorCodeTextView)
+    }
+
+    /**
      * This add the text on the [PhotoEditorView] with provided parameters
      * by default [TextView.setText] will be 18sp
      *
@@ -56,6 +83,19 @@ interface PhotoEditor {
      */
     @SuppressLint("ClickableViewAccessibility")
     fun addText(text: String, styleBuilder: TextStyleBuilder?)
+
+    /**
+     * This adds the text on the [PhotoEditorView] at the provided initial [position].
+     * by default [TextView.setText] will be 18sp
+     *
+     * @param text         text to display
+     * @param styleBuilder text style builder with your style
+     * @param position     initial position in pixels from the top-left of the editor
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    fun addText(text: String, styleBuilder: TextStyleBuilder?, position: Position) {
+        addText(text, styleBuilder)
+    }
 
     /**
      * This will update text and color on provided view
